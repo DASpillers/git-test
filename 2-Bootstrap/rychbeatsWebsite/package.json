@@ -1,0 +1,28 @@
+{
+  "name": "rychbeatswebsite",
+  "version": "1.0.0",
+  "description": "Rych Beats Website",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run lite",
+    "lite": "lite-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DASpillers/rychbeats_site.git"
+  },
+  "author": "Daniel Anthony Spillers",
+  "license": "ISC",
+  "devDependencies": {
+    "lite-server": "^2.6.1"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.3",
+    "bootstrap": "^4.6.0",
+    "bootstrap-social": "^5.1.1",
+    "font-awesome": "^4.7.0",
+    "jquery": "^3.6.0",
+    "popper.js": "^1.16.1"
+  }
+}
