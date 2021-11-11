@@ -1,40 +1,57 @@
 const MongoClient = require("mongodb").MongoClient;
 const assert = require("assert").strict;
+const dboper = require("./operations");
 
 const url = "mongodb://localhost:27017/";
 const dbname = "nucampsite";
 
-MongoClient.connect(
-  url,
-  { useUnifiedTopology: true },
+MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
+  assert.strictEqual(err, null);
 
-  (err, client) => {
+  console.log("Connected correctly to server");
+
+  const db = client.db(dbname);
+
+  db.dropCollection("campsites", (err, result) => {
     assert.strictEqual(err, null);
+    console.log("Dropped Collection:", result);
 
-    console.log("Connected correctly to server.");
+    dboper.insertDocument(
+      db,
+      { name: "Breadcrumb Trail Campground", description: "Test" },
+      "campsites",
+      (result) => {
+        console.log("Insert Document:", result.ops);
 
-    const db = client.db(dbname);
+        dboper.findDocuments(db, "campsites", (docs) => {
+          console.log("Found Documents:", docs);
 
-    db.dropCollection("campsites", (err, result) => {
-      assert.strictEqual(err, null);
-      console.log("Dropped collection", result);
+          dboper.updateDocument(
+            db,
+            { name: "Breadcrumb Trail Campground" },
+            { description: "Updated Test Description" },
+            "campsites",
+            (result) => {
+              console.log("Updated Document Count:", result.result.nModified);
 
-      const collection = db.collection("campsites");
+              dboper.findDocuments(db, "campsites", (docs) => {
+                console.log("Found Documents:", docs);
 
-      collection.insertOne(
-        { name: "Breadcrumb Trail Campground", description: "Test" },
-        (err, result) => {
-          assert.strictEqual(err, null);
-          console.log("Insert Document:", result.ops);
+                dboper.removeDocument(
+                  db,
+                  { name: "Breadcrumb Trail Campground" },
+                  "campsites",
+                  (result) => {
+                    console.log("Deleted Document Count:", result.deletedCount);
 
-          collection.find().toArray((err, docs) => {
-            assert.strictEqual(err, null);
-            console.log("Found Documents:", docs);
-
-            client.close();
-          });
-        }
-      );
-    });
-  }
-);
+                    client.close();
+                  }
+                );
+              });
+            }
+          );
+        });
+      }
+    );
+  });
+});
