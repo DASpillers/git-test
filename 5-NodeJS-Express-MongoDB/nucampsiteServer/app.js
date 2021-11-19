@@ -1,15 +1,12 @@
 var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
-var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const mongoose = require("mongoose");
-const session = require("express-session");
-const FileStore = require("session-file-store")(session);
 const passport = require("passport");
-const authenticate = require("./authenticate");
+const config = require("./config");
 
-const url = "mongodb://127.0.0.1:27017/nucampsite";
+const url = config.mongoUrl;
 const connect = mongoose.connect(url, {
   useCreateIndex: true,
   useFindAndModify: false,
@@ -38,39 +35,11 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// app.use(cookieParser("12345-67890-09876-54321"));
-
-app.use(
-  session({
-    name: "session-id",
-    secret: "12345-67890-09876-54321", //sign-in cookie
-    saveUninitialized: false, //new sessions with no updates won't get saved. wont send cookies.
-    resave: false, // when session is created, updated, and saved, it will continue to be resaved. keeps session marked as active
-    store: new FileStore(), //creates new filestore object to saved session information to server hard disk
-  })
-);
-
 app.use(passport.initialize());
-app.use(passport.session());
+
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-
-//AUTHENTICATION: CUSTOM MIDDLEWARE AUTHENTICATION
-
-function auth(req, res, next) {
-  console.log(req.user);
-
-  if (!req.user) {
-    const err = new Error("You are not authenticated!");
-    err.status = 401;
-    return next(err);
-  } else {
-    return next();
-  }
-}
-
-app.use(auth);
 
 app.use(express.static(path.join(__dirname, "public")));
 
